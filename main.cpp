@@ -89,16 +89,63 @@ int createLeafNodes(int freq[]) {
 
 // Step 3: Build the encoding tree using heap operations
 int buildEncodingTree(int nextFree) {
-    // TODO:
-    // 1. Create a MinHeap object.
-    // 2. Push all leaf node indices into the heap.
-    // 3. While the heap size is greater than 1:
-    //    - Pop two smallest nodes
-    //    - Create a new parent node with combined weight
-    //    - Set left/right pointers
-    //    - Push new parent index back into the heap
-    // 4. Return the index of the last remaining node (root)
-    return -1; // placeholder
+//     TODO:
+//     1. Create a MinHeap object.
+//     2. Push all leaf node indices into the heap.
+//     3. While the heap size is greater than 1:
+//        - Pop two smallest nodes
+//        - Create a new parent node with combined weight
+//        - Set left/right pointers
+//        - Push new parent index back into the heap
+//     4. Return the index of the last remaining node (root)
+//
+//    Case 1: There are no symbols
+    if(nextFree == 0)
+    {
+        cout << "No symbols found" << endl;
+        return -1; // placeholder
+    }
+
+//    Case 2: There is only one singular symbol (root)
+    if(nextFree == 1)
+    {
+        return 0;
+    }
+
+//    Case 3: Normal case. Create a MinHeap object.
+    MinHeap heap;
+
+//    Push all leaf node indices into the heap.
+    for(int i = 0; i < nextFree; i++)
+    {
+        heap.push(i, weightArr);
+    }
+
+    while (heap.size > 1)       // While heap size is greater than 1
+    {
+//        Pop the 2 smallest nodes
+        int first = heap.pop(weightArr); // First smallest node
+        int second = heap.pop(weightArr); // Second smallest node
+
+        // Create a new internal parent node at index nextFree
+        if (nextFree >= MAX_NODES)
+        {
+            return -1;
+        }
+
+        leftArr[nextFree] = first;        // left
+        rightArr[nextFree] = second;       // right
+        weightArr[nextFree] = weightArr[first] + weightArr[second];     // Combined weight
+        charArr[nextFree] = '\0';  // null character
+
+        // Push new parent index back into heap and increment nextFree
+        heap.push(nextFree, weightArr);
+        nextFree++;
+    }
+
+    // Return the index of the last remaining node (root)
+    int root = heap.pop(weightArr);
+    return root;
 }
 
 // Step 4: Use an STL stack to generate codes
