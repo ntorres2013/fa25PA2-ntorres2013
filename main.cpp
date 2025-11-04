@@ -26,7 +26,7 @@ int main() {
     int freq[26] = {0};
 
     // Step 1: Read file and count letter frequencies
-    buildFrequencyTable(freq, "input.txt");
+    buildFrequencyTable(freq, "../input.txt");
 
     // Step 2: Create leaf nodes for each character with nonzero frequency
     int nextFree = createLeafNodes(freq);
@@ -39,7 +39,7 @@ int main() {
     generateCodes(root, codes);
 
     // Step 5: Encode the message and print output
-    encodeMessage("input.txt", codes);
+    encodeMessage("../input.txt", codes);
 
     return 0;
 }
@@ -89,16 +89,7 @@ int createLeafNodes(int freq[]) {
 
 // Step 3: Build the encoding tree using heap operations
 int buildEncodingTree(int nextFree) {
-//     TODO:
-//     1. Create a MinHeap object.
-//     2. Push all leaf node indices into the heap.
-//     3. While the heap size is greater than 1:
-//        - Pop two smallest nodes
-//        - Create a new parent node with combined weight
-//        - Set left/right pointers
-//        - Push new parent index back into the heap
-//     4. Return the index of the last remaining node (root)
-//
+
 //    Case 1: There are no symbols
     if(nextFree == 0)
     {
@@ -150,10 +141,51 @@ int buildEncodingTree(int nextFree) {
 
 // Step 4: Use an STL stack to generate codes
 void generateCodes(int root, string codes[]) {
-    // TODO:
-    // Use stack<pair<int, string>> to simulate DFS traversal.
-    // Left edge adds '0', right edge adds '1'.
-    // Record code when a leaf node is reached.
+//    Case 1: No tree
+    if(root == -1)
+    {
+        cout << "No tree to traverse" << endl;
+        return;
+    }
+
+//    Case 2: Only one singular symbol. One-node-tree
+    if (leftArr[root] == -1 && rightArr[root] == -1)
+    {
+        if (charArr[root] >= 'a' && charArr[root] <= 'z')
+        {
+            codes[charArr[root] - 'a'] = "0";
+        }
+        return;
+    }
+
+    // Case 3: Normal case — iterative DFS with a stack
+    // Each stack entry holds (nodeIndex, pathBitsSoFar)
+    stack<pair<int, string>> st;
+    st.push({root, ""});
+
+    while (!st.empty()) {
+        auto [node, path] = st.top();
+        st.pop();
+
+        bool isLeaf = (leftArr[node] == -1 && rightArr[node] == -1);
+
+        if (isLeaf) {
+            // Assign code to the leaf character
+            // (If path == "" this would be the single-node case, already handled.)
+            char c = charArr[node];
+            if (c >= 'a' && c <= 'z') {
+                codes[c - 'a'] = path;
+            }
+        } else {
+            // Push right first, then left — so left is processed first (optional)
+            if (rightArr[node] != -1) {
+                st.push({ rightArr[node], path + "1" });
+            }
+            if (leftArr[node] != -1) {
+                st.push({ leftArr[node],  path + "0" });
+            }
+        }
+    }
 }
 
 // Step 5: Print table and encoded message
